@@ -116,14 +116,21 @@ foreach ($region in $Regions) {
   $mapFile = Join-Path $OutDir "$region.map.pmtiles"
   $roadsFile = Join-Path $OutDir "$region.roads.pmtiles"
 
+  # Planetiler derives the default file name from the area and changes
+  # hyphens; both steps must read the same extract, so name it explicitly.
+  $osmPath = "data/sources/$region.osm.pbf"
   if (-not $SkipMap) {
     Write-Host "== $name : map tiles"
-    Invoke-Planetiler @("--area=$region", '--download', "--output=$mapFile", '--force')
+    Invoke-Planetiler @(
+      "--area=$region", "--osm_path=$osmPath", '--download',
+      "--output=$mapFile", '--force'
+    )
   }
   if (-not $SkipRoads) {
     Write-Host "== $name : road data"
     Invoke-Planetiler @(
       'generate-custom', "--schema=$schema", "--area=$region",
+      "--osm_path=$osmPath", '--download',
       '--minzoom=14', '--maxzoom=14', "--output=$roadsFile", '--force'
     )
   }

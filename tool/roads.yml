@@ -1,6 +1,7 @@
 # Planetiler schema for the offline driving data of Teyes Home Map:
-# drivable roads with their speed limit tags plus traffic signals and speed
-# cameras. Only zoom 14 is written; the app reads these tiles directly to
+# drivable roads with their speed limit and overtaking tags plus traffic
+# signals, speed cameras, fuel and charging stations and car parks.
+# Only zoom 14 is written; the app reads these tiles directly to
 # match the vehicle to a road (see lib/offline/road_tiles.dart).
 schema_name: Teyes Home Map roads
 schema_description: Drivable roads with speed limit tags, traffic signals and speed cameras.
@@ -40,6 +41,68 @@ definitions:
       tag_value: source:maxspeed
     - key: zone:maxspeed
       tag_value: zone:maxspeed
+    # Time or weather dependent limits, e.g. "30 @ (22:00-06:00)".
+    - key: maxspeed:conditional
+      tag_value: maxspeed:conditional
+    - key: maxspeed:forward:conditional
+      tag_value: maxspeed:forward:conditional
+    - key: maxspeed:backward:conditional
+      tag_value: maxspeed:backward:conditional
+    - key: overtaking
+      tag_value: overtaking
+    - key: overtaking:forward
+      tag_value: overtaking:forward
+    - key: overtaking:backward
+      tag_value: overtaking:backward
+
+  # Fuel stations, charging stations and car parks. Ids are the OSM id times
+  # ten plus 1 for areas, so nodes and areas never share an id.
+  place_tags: &place_tags
+    - key: amenity
+      tag_value: amenity
+    - key: name
+      tag_value: name
+    - key: brand
+      tag_value: brand
+    - key: operator
+      tag_value: operator
+    - key: opening_hours
+      tag_value: opening_hours
+    - key: parking
+      tag_value: parking
+    - key: fee
+      tag_value: fee
+    - key: capacity
+      tag_value: capacity
+    - key: capacity:charging
+      tag_value: capacity:charging
+    - key: socket:type2
+      tag_value: socket:type2
+    - key: socket:type2:output
+      tag_value: socket:type2:output
+    - key: socket:type2_combo
+      tag_value: socket:type2_combo
+    - key: socket:type2_combo:output
+      tag_value: socket:type2_combo:output
+    - key: socket:chademo
+      tag_value: socket:chademo
+    - key: socket:tesla_supercharger
+      tag_value: socket:tesla_supercharger
+  places: &places
+    amenity:
+      - fuel
+      - charging_station
+      - parking
+  hidden_places: &hidden_places
+    access:
+      - private
+      - 'no'
+    parking:
+      - street_side
+      - lane
+      - on_kerb
+      - half_on_kerb
+      - shoulder
 
 layers:
   - id: roads
@@ -73,7 +136,7 @@ layers:
     features:
       - source: osm
         geometry: point
-        id: '${ feature.id }'
+        id: '${ feature.id * 10 }'
         min_zoom: 14
         include_when:
           highway:
@@ -84,3 +147,17 @@ layers:
             tag_value: highway
           - key: maxspeed
             tag_value: maxspeed
+      - source: osm
+        geometry: point
+        id: '${ feature.id * 10 }'
+        min_zoom: 14
+        include_when: *places
+        exclude_when: *hidden_places
+        attributes: *place_tags
+      - source: osm
+        geometry: polygon_centroid
+        id: '${ feature.id * 10 + 1 }'
+        min_zoom: 14
+        include_when: *places
+        exclude_when: *hidden_places
+        attributes: *place_tags
