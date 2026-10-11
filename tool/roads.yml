@@ -1,0 +1,86 @@
+# Planetiler schema for the offline driving data of Teyes Home Map:
+# drivable roads with their speed limit tags plus traffic signals and speed
+# cameras. Only zoom 14 is written; the app reads these tiles directly to
+# match the vehicle to a road (see lib/offline/road_tiles.dart).
+schema_name: Teyes Home Map roads
+schema_description: Drivable roads with speed limit tags, traffic signals and speed cameras.
+attribution: <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>
+
+args:
+  area:
+    description: Geofabrik area id, e.g. berlin or bayern
+    default: berlin
+  osm_path: '${ "data/sources/" + args.area + ".osm.pbf" }'
+
+sources:
+  osm:
+    type: osm
+    url: '${ "geofabrik:" + args.area }'
+    local_path: '${ args.osm_path }'
+
+definitions:
+  road_tags: &road_tags
+    - key: highway
+      tag_value: highway
+    - key: name
+      tag_value: name
+    - key: ref
+      tag_value: ref
+    - key: oneway
+      tag_value: oneway
+    - key: maxspeed
+      tag_value: maxspeed
+    - key: maxspeed:forward
+      tag_value: maxspeed:forward
+    - key: maxspeed:backward
+      tag_value: maxspeed:backward
+    - key: maxspeed:type
+      tag_value: maxspeed:type
+    - key: source:maxspeed
+      tag_value: source:maxspeed
+    - key: zone:maxspeed
+      tag_value: zone:maxspeed
+
+layers:
+  - id: roads
+    features:
+      - source: osm
+        geometry: line
+        id: '${ feature.id }'
+        min_zoom: 14
+        min_size_at_max_zoom: 0
+        tolerance_at_max_zoom: 0.0625
+        include_when:
+          highway:
+            - motorway
+            - motorway_link
+            - trunk
+            - trunk_link
+            - primary
+            - primary_link
+            - secondary
+            - secondary_link
+            - tertiary
+            - tertiary_link
+            - unclassified
+            - residential
+            - living_street
+            - service
+            - road
+        attributes: *road_tags
+
+  - id: features
+    features:
+      - source: osm
+        geometry: point
+        id: '${ feature.id }'
+        min_zoom: 14
+        include_when:
+          highway:
+            - traffic_signals
+            - speed_camera
+        attributes:
+          - key: highway
+            tag_value: highway
+          - key: maxspeed
+            tag_value: maxspeed
