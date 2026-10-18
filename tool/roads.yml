@@ -1,6 +1,7 @@
 # Planetiler schema for the offline driving data of Teyes Home Map:
-# drivable roads with their speed limit and overtaking tags plus traffic
-# signals, speed cameras, fuel and charging stations and car parks.
+# drivable roads with their speed limit, overtaking and access tags, roads
+# under construction, traffic signals, speed cameras, fuel and charging
+# stations and car parks.
 # Only zoom 14 is written; the app reads these tiles directly to
 # match the vehicle to a road (see lib/offline/road_tiles.dart).
 schema_name: Teyes Home Map roads
@@ -54,6 +55,25 @@ definitions:
       tag_value: overtaking:forward
     - key: overtaking:backward
       tag_value: overtaking:backward
+    # Road works and closures for cars (lib/road_work.dart).
+    - key: construction
+      tag_value: construction
+    - key: access
+      tag_value: access
+    - key: vehicle
+      tag_value: vehicle
+    - key: motor_vehicle
+      tag_value: motor_vehicle
+    - key: motorcar
+      tag_value: motorcar
+    - key: access:conditional
+      tag_value: access:conditional
+    - key: vehicle:conditional
+      tag_value: vehicle:conditional
+    - key: motor_vehicle:conditional
+      tag_value: motor_vehicle:conditional
+    - key: motorcar:conditional
+      tag_value: motorcar:conditional
 
   # Fuel stations, charging stations and car parks. Ids are the OSM id times
   # ten plus 1 for areas, so nodes and areas never share an id.
@@ -130,6 +150,8 @@ layers:
             - living_street
             - service
             - road
+            # Roads being built or rebuilt, closed meanwhile.
+            - construction
         attributes: *road_tags
 
   - id: features

@@ -5,7 +5,8 @@ Bundesland und für ganz Deutschland:
 
 - `<region>.map.pmtiles` – Vektorkarte (OpenMapTiles-Schema), passend zu den
   OpenFreeMap-Stilen der App
-- `<region>.roads.pmtiles` – Straßen mit Tempolimit-Tags, Ampeln, Blitzer,
+- `<region>.roads.pmtiles` – Straßen mit Tempolimit- und Zufahrts-Tags,
+  Baustellen, Ampeln, Blitzer,
   Tankstellen, Ladesäulen und Parkplätze (Zoomstufe 14, siehe
   `tool/roads.yml`)
 
